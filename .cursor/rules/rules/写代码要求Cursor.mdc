@@ -1,0 +1,160 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Cursor 代码编写规范 V1.0.0-0326
+1. 每次更改代码必须牢记一个要求：保持当前的UI界面，不要更改其他功能和页面，除非给了明确指令让你修改。
+2. 环境变量管理：统一使用 .env 文件管理，代码中所有环境变量配置必须关联至该文件。
+3. 技术栈一致性：禁止随意更改编程语言或数据库类型（如 MySQL → MongoDB），必须保持原有架构。
+4. 代码规范：逻辑清晰、简洁，避免冗余代码。
+5. 安全防护：
+  - 强制 HTTPS
+  - 数据加密（如 AES-256）
+  - 防御 SQL 注入/XSS 攻击
+6. 高性能优化：确保产品响应速度快，资源占用低。
+7. 用户导向设计：从用户体验出发设计功能，而非开发者视角。
+8. UI 美观性：界面设计需简洁美观，合理运用配色方案。
+9. 精准代码修改：仅调整需求指定部分，禁止改动无关模块，确保版本间一致性。
+10. 写代码规范
+<!-- 代码修改规范 -->
+1. 请只修改明确指定的文件和代码部分
+2. 使用以下格式指定修改范围：
+  - 文件路径: [完整路径]
+  - 修改行范围: [开始行]-[结束行] 或 [特定函数/方法名]
+3. 未明确指定修改的代码部分必须保持不变
+4. 所有修改必须在回复中使用对比形式明确标出
+5. 如需创建新文件，请明确指出
+
+<!-- 本次需修改内容 -->
+<!-- 
+文件: [文件路径]
+范围: [修改范围]
+需求: [详细描述需求]
+-->
+11.  前端UI设计规范手册
+一、全局设计原则
+1. 一致性原则
+  - 相同功能模块保持相同视觉样式（颜色/尺寸/间距）
+  - 所有元素对齐到8px基线网格系统
+2. 响应式规则
+  - 移动端优先设计，断点设置：
+xs: <576px sm: 576px md: 768px lg: 992px xl: 1200px
+  - 容器最大宽度：PC端1200px，平板端100%
+二、色彩系统
+1. 主色系
+css
+:root {--primary-color: #2F80ED;  /* 品牌主色 */--secondary-color: #27AE60; /* 辅助色 */--danger-color: #EB5757;   /* 警示色 */}
+2. 中性色
+css
+:root {--text-primary: #333333;    /* 主要文字 */--text-secondary: #666666;  /* 次级文字 */--border-color: #E0E0E0;    /* 边框颜色 */--background-light: #F8F9FA; /* 浅色背景 */}
+3. 使用规则
+  - 按钮主操作使用--primary-color
+  - 警示操作使用--danger-color
+  - 边框统一使用--border-color
+三、间距系统
+css
+:root {--space-xs: 4px;   /* 元素内部微间距 */--space-sm: 8px;   /* 组件间小间距 */--space-md: 16px;  /* 模块间标准间距 */--space-lg: 24px;  /* 大区块间距 */--space-xl: 32px;  /* 超大间距 */}
+应用规则：
+- 相同层级元素间距统一使用同一变量
+- 模块间纵向间距必须≥16px
+- 文字与边框保持≥8px内边距
+四、组件规范
+4. 容器模块
+- 外边框：1px solid var(--border-color)
+- 圆角：6px
+- 内边距：var(--space-md)
+- 阴影：0 2px 8px rgba(0,0,0,0.1)
+5. 按钮规范
+css
+.btn {padding: 8px 16px;border-radius: 4px;font-size: 14px;transition: all 0.3s ease;}
+/* 主按钮示例 */.btn-primary {background: var(--primary-color);color: white;border: none;}
+6. 表单控件
+- 输入框高度：40px
+- 统一边框样式：1px solid var(--border-color)
+- 错误状态：红色边框 + 背景色#FFEBEE
+五、排版系统
+1. 字体规范
+  - 主要字体：system-ui系字体
+  - 字号阶梯：12px | 14px | 16px | 20px | 24px
+2. 行高规则
+  - 正文：1.5倍行高
+  - 标题：1.2倍行高
+3. 层级关系
+css
+h1 { font-size: 24px; margin-bottom: var(--space-lg); }
+h2 { font-size: 20px; margin-bottom: var(--space-md); }p { font-size: 14px; margin-bottom: var(--space-sm); }
+六、交互规范
+1. 悬停效果
+  - 按钮：颜色加深10% + 轻微上移1px
+  - 卡片：增加阴影0 4px 12px rgba(0,0,0,0.15)
+2. 过渡动画
+  - 所有交互必须包含过渡效果
+  - 标准时长：0.3s
+  - 缓动函数：cubic-bezier(0.4, 0, 0.2, 1)
+七、特殊状态处理
+1. Loading状态
+  - 使用统一loading动画
+  - 背景蒙层透明度：0.8
+2. 空白状态
+  - 占位图标尺寸：64px
+  - 提示文字颜色：var(--text-secondary)
+AI实现要求
+1. 优先使用CSS变量管理系统
+2. 必须添加样式注释：
+   css
+   /* 卡片容器 - 规范编号CARD-001 */.card-container {padding: var(--space-md);border-radius: 6px;box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+3. 相同功能模块必须复用已有样式
+4. 输出前进行以下校验：
+  - 所有间距是否为8px整数倍
+  - 相同类型组件样式是否一致
+  - 颜色是否使用预设变量
+12. AI开发指令要求请严格遵循以下规范生成网站
+1. 数据存储原则
+- 禁止在任何代码文件中使用硬编码数据（包括但不限于用户信息、配置参数、业务数据）
+- 所有动态数据必须持久化存储到数据库
+- 临时缓存数据可使用内存存储，但须标注过期时间
+2. 数据库要求
+√ 根据项目场景选择数据库类型：
+▢ 关系型数据库（MySQL）
+境使用
+√ 必须包含：
+  - 数据库连接配置模块
+  - 独立的数据模型/Schema定义
+  - 数据访问层(DAO)封装
+  - 错误处理机制
+3. 用户系统实现规范
+- 用户凭证存储：
+✔ 密码必须加密存储（推荐bcrypt）
+✔ 使用独立users表/集合
+✔ 包含基础字段：user_id, username, hashed_password, email, created_at
+- Session管理：
+✔ 使用数据库存储会话记录
+✔ 或采用JWT令牌方案
+4. 代码结构要求
+- 采用分层架构（推荐MVC模式）：
+- 复制
+- project/
+├── models/        # 数据模型定义
+├── controllers/   # 业务逻辑
+├── routes/        # 路由配置
+└── config/        # 数据库配置
+- 敏感配置必须通过环境变量注入：
+- javascript
+- 复制
+- // 错误示例const dbPassword = '123456'; 
+
+// 正确示例const dbPassword = process.env.DB_PASSWORD;
+5. 必须实现的典型示例
+当处理用户注册功能时：
+javascript
+复制
+// 禁止的硬编码方式const users = [{id:1, name:'test'}]; 
+
+// 正确实现方式async function registerUser(userData) {const db = await connectDB(); // 连接数据库const hashedPwd = await bcrypt.hash(userData.password, 10);return db.collection('users').insertOne({username: userData.username,password: hashedPwd,createdAt: new Date()});}
+6. 验证要求
+生成的代码必须包含：
+▢ 数据库初始化脚本
+▢ 至少3个CRUD操作示例
+▢ 数据验证中间件
+▢ 错误处理单元测试

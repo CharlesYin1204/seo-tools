@@ -1,0 +1,352 @@
+/**
+ * 定时任务：自动AI解析不完整的房源
+ * 检测条件：is_ai_parsed = 0（未经过AI解析的记录）
+ * 从 system_settings 读取 ai_parse_batch_size / ai_parse_thread_count / ai_parse_enabled
+ * 支持并发处理以匹配后台 "并发解析加速" 配置
+ */
+const { query } = require('../config/database');
+const SystemSetting = require('../models/SystemSetting');
+const logger = require('../utils/logger');
+
+const MAX_RENT_PRICE = 500000;
+
+function hasImplicitElevatorCommunity(name) {
+  return /大楼|大厦/.test(String(name || '').trim());
+}
+
+let isRunning = false;
+let lastRunStats = { lastRun: null, processed: 0, success: 0, failed: 0, remaining: 0 };
+
+/** 与后台统计一致：有原文且未打 is_ai_parsed 的条数 */
+async function countRemainingParseable() {
+  const rows = await query(`
+    SELECT COUNT(*) as cnt FROM wechat_robot_expat_parsed_properties
+    WHERE deleted_at IS NULL
+      AND original_content IS NOT NULL AND LENGTH(TRIM(original_content)) > 0
+      AND (is_ai_parsed = 0 OR is_ai_parsed IS NULL)
+  `);
+  const row = Array.isArray(rows) && rows[0] ? rows[0] : {};
+  return Number(row.cnt) || 0;
+}
+
+async function persistRuntimeStats(stats) {
+  lastRunStats = { ...lastRunStats, ...stats };
+  try {
+    await SystemSetting.set('ai_parse_runtime_stats', JSON.stringify(lastRunStats), 'string');
+  } catch (e) {
+    logger.warn('[自动AI解析] 写入运行状态失败', { error: e.message });
+  }
+}
+
+const PARSE_LOG_MAX = 100;
+
+async function appendParseLog(entry) {
+  try {
+    const raw = await SystemSetting.get('ai_parse_job_logs', '');
+    let logs = [];
+    if (raw) {
+      try {
+        logs = JSON.parse(raw);
+      } catch {
+        logs = [];
+      }
+    }
+    if (!Array.isArray(logs)) {
+      logs = [];
+    }
+    logs.unshift({
+      t: new Date().toISOString(),
+      ...entry,
+    });
+    if (logs.length > PARSE_LOG_MAX) {
+      logs = logs.slice(0, PARSE_LOG_MAX);
+    }
+    await SystemSetting.set('ai_parse_job_logs', JSON.stringify(logs), 'string');
+  } catch (e) {
+    logger.warn('[自动AI解析] 写入日志失败', { error: e.message });
+  }
+}
+
+async function autoReparseIncompleteJob() {
+  if (isRunning) {
+    console.log('[自动AI解析] 上一轮仍在运行，跳过');
+    return;
+  }
+
+  // 读取后台AI解析总开关
+  const aiEnabled = await SystemSetting.get('ai_parse_enabled', '0');
+  if (aiEnabled !== '1' && aiEnabled !== 1 && aiEnabled !== true) return;
+
+  isRunning = true;
+  console.log('[自动AI解析] 开始新一轮...');
+  const startTime = Date.now();
+
+  // 写入"正在运行"状态，让前端立刻能看到任务在跑
+  try {
+    const curRaw = await SystemSetting.get('ai_parse_runtime_stats', '');
+    const curStats = curRaw ? (typeof curRaw === 'string' ? JSON.parse(curRaw) : curRaw) : {};
+    await SystemSetting.set('ai_parse_runtime_stats', JSON.stringify({
+      ...curStats,
+      status: 'running',
+      message: '正在解析中...',
+      runningStarted: new Date().toISOString(),
+    }), 'string');
+  } catch {}
+
+  try {
+    const ctrl = require('../controllers/user/WeChatRobotPluginController');
+    const parsePropertyContent = ctrl.parsePropertyContent;
+    const updateParsedProperty = ctrl.updateParsedPropertyFromAI || getUpdateFunction();
+
+    // 从后台配置读取批量大小和并发数
+    const batchSize = Math.max(10, Math.min(200, parseInt(await SystemSetting.get('ai_parse_batch_size', '50')) || 50));
+    const multiThreadEnabled = await SystemSetting.get('ai_parse_multi_thread', '0');
+    const threadCount = (multiThreadEnabled === '1' || multiThreadEnabled === 1)
+      ? Math.max(1, Math.min(16, parseInt(await SystemSetting.get('ai_parse_thread_count', '8')) || 8))
+      : 1;
+
+    const aiModelId = await SystemSetting.get('ai_parse_model_id', null);
+    const aiPrompt = await SystemSetting.get('ai_parse_prompt', null);
+    if (!aiModelId || !String(aiPrompt || '').trim()) {
+      const remaining = await countRemainingParseable();
+      const msg = !aiModelId ? '未选择AI模型，定时任务跳过' : 'AI提示词为空，定时任务跳过';
+      await persistRuntimeStats({
+        lastRun: new Date().toISOString(),
+        processed: 0,
+        success: 0,
+        failed: 0,
+        remaining,
+        elapsed: Date.now() - startTime,
+        threadCount,
+        batchSize,
+        status: 'skipped',
+        message: msg,
+      });
+      await appendParseLog({ level: 'warning', message: msg, remaining, processed: 0 });
+      // 注意：不能 return，必须走 finally 以重置 isRunning
+      isRunning = false;
+      return;
+    }
+
+    const modelRows = await query(
+      'SELECT id, model_code, model_name, api_url, api_key, api_headers, max_tokens, temperature FROM ai_models WHERE id = ? AND is_enabled = 1 LIMIT 1',
+      [aiModelId]
+    );
+    const aiModel = Array.isArray(modelRows) && modelRows[0] ? (Array.isArray(modelRows[0]) ? modelRows[0][0] : modelRows[0]) : null;
+    if (!aiModel) {
+      const remaining = await countRemainingParseable();
+      const msg = '所选AI模型不存在或已禁用，定时任务跳过';
+      await persistRuntimeStats({
+        lastRun: new Date().toISOString(),
+        processed: 0,
+        success: 0,
+        failed: 0,
+        remaining,
+        elapsed: Date.now() - startTime,
+        threadCount,
+        batchSize,
+        status: 'skipped',
+        message: msg,
+      });
+      await appendParseLog({ level: 'warning', message: msg, remaining, processed: 0 });
+      isRunning = false;
+      return;
+    }
+
+    // 查找未AI解析的记录（is_ai_parsed = 0）
+    const incomplete = await query(`
+      SELECT id, original_content
+      FROM wechat_robot_expat_parsed_properties
+      WHERE deleted_at IS NULL
+        AND original_content IS NOT NULL AND LENGTH(TRIM(original_content)) > 0
+        AND (is_ai_parsed = 0 OR is_ai_parsed IS NULL)
+      ORDER BY created_at DESC
+      LIMIT ?
+    `, [batchSize]);
+
+    const rows = Array.isArray(incomplete) ? incomplete : [];
+    if (rows.length === 0) {
+      const remaining = await countRemainingParseable();
+      const msg = remaining === 0
+        ? '当前没有「有原文且待解析」的记录'
+        : '本轮未取到记录（请稍后重试或检查数据库）';
+      await persistRuntimeStats({
+        lastRun: new Date().toISOString(),
+        processed: 0,
+        success: 0,
+        failed: 0,
+        remaining,
+        elapsed: Date.now() - startTime,
+        threadCount,
+        batchSize,
+        status: remaining === 0 ? 'complete' : 'idle',
+        message: msg,
+      });
+      await appendParseLog({
+        level: 'info',
+        message: msg,
+        remaining,
+        processed: 0,
+      });
+      isRunning = false;
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    // 并发处理：将记录分成 threadCount 大小的并发批次
+    for (let i = 0; i < rows.length; i += threadCount) {
+      const batch = rows.slice(i, i + threadCount);
+      const results = await Promise.allSettled(
+        batch.map(row => parseSingleRecord(row, parsePropertyContent, updateParsedProperty, aiModel, aiPrompt))
+      );
+      for (const r of results) {
+        if (r.status === 'fulfilled' && r.value) successCount++;
+        else failCount++;
+      }
+    }
+
+    const remaining = await countRemainingParseable();
+
+    await persistRuntimeStats({
+      lastRun: new Date().toISOString(),
+      processed: rows.length,
+      success: successCount,
+      failed: failCount,
+      remaining,
+      elapsed: Date.now() - startTime,
+      threadCount,
+      batchSize,
+      status: 'ok',
+      message: `本轮处理 ${rows.length} 条，成功 ${successCount}，失败 ${failCount}，队列剩余 ${remaining} 条`,
+    });
+
+    await appendParseLog({
+      level: failCount > 0 ? 'warning' : 'info',
+      message: `自动解析一批：成功 ${successCount}/${rows.length}，失败 ${failCount}，队列剩余 ${remaining}`,
+      remaining,
+      processed: rows.length,
+      success: successCount,
+      failed: failCount,
+      elapsedMs: Date.now() - startTime,
+      threadCount,
+    });
+
+    if (successCount > 0 || failCount > 0) {
+      logger.info(`[自动AI解析] ${threadCount}线程 完成: 成功${successCount}/${rows.length}, 失败${failCount}, 剩余${remaining}条, 耗时${Date.now() - startTime}ms`);
+    }
+  } catch (e) {
+    logger.error('[自动AI解析] 异常', { error: e.message });
+    try {
+      const remaining = await countRemainingParseable();
+      await persistRuntimeStats({
+        lastRun: new Date().toISOString(),
+        processed: 0,
+        success: 0,
+        failed: 0,
+        remaining,
+        elapsed: Date.now() - startTime,
+        status: 'error',
+        message: `任务异常: ${e.message}`,
+      });
+      await appendParseLog({ level: 'error', message: `任务异常: ${e.message}`, remaining, processed: 0 });
+    } catch (e2) {
+      logger.error('[自动AI解析] 异常后写状态失败', { error: e2.message });
+    }
+  } finally {
+    isRunning = false;
+  }
+}
+
+/**
+ * 解析单条记录
+ */
+async function parseSingleRecord(row, parsePropertyContent, updateParsedProperty, aiModel, aiPrompt) {
+  const sourceText = row.original_content || '';
+  if (!sourceText.trim()) return false;
+  try {
+    const parseResult = await parsePropertyContent(sourceText, aiModel, aiPrompt, { requireAiValidation: true });
+    if (parseResult) {
+      parseResult.original_content = sourceText;
+      await updateParsedProperty(row.id, parseResult);
+      return true;
+    }
+    return false;
+  } catch (e) {
+    logger.warn('自动AI解析单条失败', { id: row.id, error: e.message });
+    return false;
+  }
+}
+
+/**
+ * 动态获取 updateParsedProperty 函数（兜底方案）
+ */
+function getUpdateFunction() {
+  return async function updateParsedPropertyDirect(propId, parsed) {
+    const updateData = {};
+    const { query: dbQuery } = require('../config/database');
+    const crypto = require('crypto');
+
+    if (parsed.community && typeof parsed.community === 'string' && parsed.community.length >= 2) {
+      updateData.community = parsed.community;
+    }
+    if (parsed.district && typeof parsed.district === 'string') {
+      const VALID_DISTRICTS = ['黄浦区','徐汇区','长宁区','静安区','普陀区','虹口区','杨浦区','闵行区','宝山区','嘉定区','浦东新区','金山区','松江区','青浦区','奉贤区','崇明区'];
+      const rawDist = String(parsed.district).trim();
+      const normDist = rawDist.replace(/新?区$/, '');
+      const dMap = { 黄浦:'黄浦区',徐汇:'徐汇区',长宁:'长宁区',静安:'静安区',普陀:'普陀区',虹口:'虹口区',杨浦:'杨浦区',闵行:'闵行区',宝山:'宝山区',嘉定:'嘉定区',浦东:'浦东新区',金山:'金山区',松江:'松江区',青浦:'青浦区',奉贤:'奉贤区',崇明:'崇明区' };
+      const validDist = dMap[normDist] || (VALID_DISTRICTS.includes(rawDist) ? rawDist : null);
+      if (validDist) updateData.district = validDist;
+    }
+    if (parsed.price_value && parsed.price_value > 0 && parsed.price_value <= MAX_RENT_PRICE) {
+      updateData.price_value = parsed.price_value;
+    }
+    if (parsed.price) updateData.price = String(parsed.price);
+    if (parsed.bedrooms && parsed.bedrooms >= 1 && parsed.bedrooms <= 20) {
+      updateData.bedrooms = parsed.bedrooms;
+    }
+    if (parsed.livingrooms !== undefined) updateData.livingrooms = parsed.livingrooms;
+    if (parsed.bathrooms !== undefined) updateData.bathrooms = parsed.bathrooms;
+    if (parsed.area_sqm && parsed.area_sqm > 0) updateData.area_sqm = parsed.area_sqm;
+    if (parsed.metro_lines) updateData.metro_lines = parsed.metro_lines;
+    if (parsed.metro_stations) updateData.metro_stations = parsed.metro_stations;
+    if (parsed.has_elevator !== undefined) updateData.has_elevator = parsed.has_elevator ? 1 : 0;
+    if (parsed.has_parking !== undefined) updateData.has_parking = parsed.has_parking ? 1 : 0;
+    if (parsed.has_commission !== undefined) updateData.has_commission = parsed.has_commission ? 1 : 0;
+    if (parsed.is_duplex !== undefined) updateData.is_duplex = parsed.is_duplex ? 1 : 0;
+    if (parsed.contact_info) updateData.contact_info = parsed.contact_info;
+    if (parsed.publisher_name) updateData.publisher_name = parsed.publisher_name;
+    if (parsed.outdoor_features) updateData.outdoor_features = parsed.outdoor_features;
+    if (parsed.floor_info) updateData.floor_info = parsed.floor_info;
+    if (parsed.orientation) updateData.orientation = parsed.orientation;
+    if (parsed.decoration) updateData.decoration = parsed.decoration;
+    if (parsed.street) updateData.street = parsed.street;
+    if (parsed.title) updateData.title = parsed.title;
+    if (parsed.description) updateData.description = parsed.description;
+    if (hasImplicitElevatorCommunity(updateData.community || parsed.community)) updateData.has_elevator = 1;
+
+    if (parsed.original_content) {
+      const normalized = String(parsed.original_content).replace(/\\n/g, '\n').replace(/\s+/g, '').replace(/[，。！？、；：""''（）【】《》\-\—\~\·]/g, '').toLowerCase().trim();
+      if (normalized.length >= 5) {
+        updateData.content_hash = crypto.createHash('md5').update(normalized).digest('hex');
+      }
+    }
+
+    updateData.is_ai_parsed = 1;
+    updateData.parse_status = 'ai_parsed';
+    updateData.updated_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    const keys = Object.keys(updateData);
+    if (keys.length <= 3) return;
+    const setClauses = keys.map(k => `${k} = ?`).join(', ');
+    const vals = [...Object.values(updateData), propId];
+    await dbQuery(`UPDATE wechat_robot_expat_parsed_properties SET ${setClauses} WHERE id = ?`, vals);
+  };
+}
+
+function getStats() {
+  return lastRunStats;
+}
+
+module.exports = { autoReparseIncompleteJob, getStats };

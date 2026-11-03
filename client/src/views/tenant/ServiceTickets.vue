@@ -1,0 +1,1 @@
+<template><TenantTable title="入住服务" empty="暂无服务工单。" :loader="tenantApi.getServiceTickets" /></template><script setup>import TenantTable from './TenantTable.vue'; import { tenantApi } from '@/api/modules/tenant'</script>

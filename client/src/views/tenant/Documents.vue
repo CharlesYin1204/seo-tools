@@ -1,0 +1,1 @@
+<template><TenantTable title="文件中心" empty="暂无文件。" :loader="tenantApi.getDocuments" /></template><script setup>import TenantTable from './TenantTable.vue'; import { tenantApi } from '@/api/modules/tenant'</script>

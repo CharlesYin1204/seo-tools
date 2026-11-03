@@ -1,0 +1,305 @@
+/* ExpatHome 全局样式 - 与PHP版保持一致 */
+
+:root {
+  --primary-color: #2F80ED;
+  --secondary-color: #27AE60;
+  --danger-color: #EB5757;
+  --warning-color: #F2994A;
+  --info-color: #56CCF2;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #E0E0E0;
+  --background-light: #F8F9FA;
+  --background-white: #FFFFFF;
+  --sidebar-width: 260px;
+  --header-height: 60px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  background-color: var(--background-light);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: darken(#2F80ED, 10%);
+  }
+}
+
+/* 用户中心/管理后台布局 */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  width: var(--sidebar-width);
+  background: #1a1a2e;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: width 0.3s ease;
+
+  .sidebar-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+
+      img {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+      }
+
+      span {
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .sidebar-menu {
+    padding: var(--space-md) 0;
+
+    .menu-group {
+      margin-bottom: var(--space-md);
+
+      .menu-group-title {
+        padding: var(--space-xs) var(--space-lg);
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px var(--space-lg);
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      gap: var(--space-sm);
+
+      &:hover,
+      &.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+
+      &.active {
+        border-right: 3px solid var(--primary-color);
+        background: rgba(47, 128, 237, 0.15);
+      }
+
+      .menu-icon {
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+      }
+
+      .menu-text {
+        flex: 1;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.app-main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  height: var(--header-height);
+  background: var(--background-white);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+}
+
+.app-content {
+  flex: 1;
+  padding: var(--space-lg);
+}
+
+/* 卡片组件 */
+.card-container {
+  background: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: var(--space-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: var(--space-md);
+}
+
+/* 页面标题 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .page-actions {
+    display: flex;
+    gap: var(--space-sm);
+  }
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+
+  &:hover {
+    background: darken(#2F80ED, 10%);
+  }
+}
+
+/* 表格样式 */
+.data-table {
+  width: 100%;
+
+  .el-table {
+    border-radius: 6px;
+  }
+}
+
+/* 统计卡片 */
+.stat-card {
+  background: var(--background-white);
+  border-radius: 8px;
+  padding: var(--space-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-align: center;
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: var(--space-xs);
+  }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 0;
+    transform: translateX(-100%);
+
+    &.open {
+      width: var(--sidebar-width);
+      transform: translateX(0);
+    }
+  }
+
+  .app-main {
+    margin-left: 0;
+  }
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60px var(--space-lg);
+  color: var(--text-secondary);
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+  }
+
+  .empty-text {
+    font-size: 16px;
+  }
+}
+
+/* 加载状态 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}

@@ -1,0 +1,1 @@
+<template><TenantTable title="账单支付" empty="暂无账单。" :loader="tenantApi.getBills" /></template><script setup>import TenantTable from './TenantTable.vue'; import { tenantApi } from '@/api/modules/tenant'</script>
