@@ -6,7 +6,7 @@
         <div class="container">
           <router-link to="/" class="navbar-brand">
             <i class="fas fa-chart-line me-2" style="color:#21b892"></i>
-            <span class="brand-text">SEO AI系统</span>
+            <span class="brand-text">SEO工具</span>
           </router-link>
 
           <button class="navbar-toggler" type="button" @click="menuOpen = !menuOpen">
@@ -62,7 +62,7 @@
       <div class="container-fluid d-flex align-items-center justify-content-between">
         <router-link to="/" class="mobile-brand">
           <i class="fas fa-chart-line" style="color:#21b892"></i>
-          <span>SEO AI系统</span>
+          <span>SEO工具</span>
         </router-link>
         <div class="d-flex align-items-center gap-2">
           <template v-if="authStore.isLoggedIn">

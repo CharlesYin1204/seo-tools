@@ -10,7 +10,7 @@ const config = {
 
   app: {
     url: process.env.APP_URL || 'http://localhost:3000',
-    name: process.env.APP_NAME || 'ExpatHome',
+    name: process.env.APP_NAME || 'SEO工具',
     debug: process.env.APP_DEBUG === 'true',
     timezone: process.env.APP_TIMEZONE || 'Asia/Shanghai',
   },
@@ -48,7 +48,7 @@ const config = {
     username: process.env.MAIL_USERNAME || '',
     password: process.env.MAIL_PASSWORD || '',
     fromEmail: process.env.MAIL_FROM_EMAIL || 'noreply@expatshome.cn',
-    fromName: process.env.MAIL_FROM_NAME || 'ExpatHome',
+    fromName: process.env.MAIL_FROM_NAME || 'SEO工具',
   },
 
   sms: {

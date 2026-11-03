@@ -1,5 +1,5 @@
 /**
- * ExpatHome Node.js 应用入口
+ * SEO工具 Node.js 应用入口
  * Express服务器配置和启动
  */
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
@@ -235,13 +235,13 @@ async function startServer() {
 
     const PORT = config.port;
     app.listen(PORT, '0.0.0.0', () => {
-      logger.info(`ExpatHome Node.js服务器已启动`, {
+      logger.info(`SEO工具 Node.js服务器已启动`, {
         port: PORT,
         env: config.env,
         mode: config.systemMode,
         url: `http://localhost:${PORT}`,
       });
-      console.log(`\n🚀 ExpatHome Node.js服务器运行中: http://localhost:${PORT}`);
+      console.log(`\n🚀 SEO工具 Node.js服务器运行中: http://localhost:${PORT}`);
       console.log(`📦 环境: ${config.env} | 模式: ${config.systemMode}`);
       console.log(`💾 数据库: ${config.db.database}@${config.db.host}\n`);
 

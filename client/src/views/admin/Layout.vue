@@ -3,7 +3,7 @@
     <div v-if="open" class="overlay" @click="open = false" />
     <aside :class="{ open }">
       <router-link class="brand" to="/admin/dashboard"
-        ><i class="fas fa-chart-line" /><span>SEO AI系统</span></router-link
+        ><i class="fas fa-chart-line" /><span>SEO工具</span></router-link
       >
       <button class="fold d-none d-md-flex" @click="collapsed = !collapsed">
         <i
@@ -219,7 +219,7 @@ const title = computed(
     [
       ...groups.flatMap((g) => g.items),
       { path: "/admin/dashboard", label: "运营仪表盘" },
-    ].find((i) => i.path === route.path)?.label || "SEO AI系统",
+    ].find((i) => i.path === route.path)?.label || "SEO工具",
 );
 const avatar = computed(() => auth.user?.avatar || "");
 watch(

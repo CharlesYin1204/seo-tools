@@ -3,7 +3,7 @@
     <div class="auth-container">
       <div class="text-center mb-4">
         <router-link to="/" class="text-decoration-none">
-          <h2 class="fw-bold text-primary">SEO AI系统</h2>
+          <h2 class="fw-bold text-primary">SEO工具</h2>
           <p class="text-muted small">多站点 SEO + AI 搜索可见性运营平台</p>
         </router-link>
       </div>

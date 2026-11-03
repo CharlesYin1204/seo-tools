@@ -1,24 +1,20 @@
-# ExpatHome · 涉外房产与 AI 运营平台
+# SEO工具 · AI 搜索可见性运营平台
 
-ExpatHome 是面向涉外租售业务的房源、客户和内容运营系统，覆盖房源管理、地图检索、客户跟进、朋友圈内容解析、SEO 运营、数据导入导出和多渠道连接，适合房产经纪或本地化运营团队二次开发。
+SEO工具是一套面向中文及出海网站的 SEO 与 AI 搜索可见性运营平台，将站点审计、问题诊断、内容优化、GEO/AEO、人工审核、发布复扫和团队协作连接成可验证的执行闭环。
 
 ## 主要功能
 
-- 房源录入、编辑、上下架、图片与小区信息管理。
-- 地图搜索、小区匹配、POI 校验和地理位置展示。
-- 客户线索、收藏、咨询、跟进状态和运营统计。
-- 朋友圈内容解析、结构化整理和素材管理。
-- SEO 内容、站点配置、报表和批量导入导出。
-- 管理员、员工和用户权限，以及登录、会话和操作日志。
-- 邮件、短信、对象存储、Redis、地图和第三方 AI 可选接入。
+- 多站点管理、Sitemap 发现、技术 SEO 审计与页面评分。
+- 标题、描述、内容质量、内链、Schema 和图片 ALT 优化。
+- AI SEO Copilot、修复候选、人工审核、发布与复扫。
+- GEO/AEO、AI 爬虫可访问性、品牌提及和引用分析。
+- Google Search Console、IndexNow 与 CMS 连接能力。
+- 团队、客户空间、任务、告警、白标报告和权限管理。
+- 套餐、用量、订单、插件、审计日志和运营后台。
 
 ## 产品界面
 
-![登录页](screenshot-1-login.png)
-
-![运营总览](screenshot-2-dashboard.png)
-
-![房源管理](screenshot-3-all-properties-full.png)
+![SEO工具电脑端首页](screenshot-seo-tools-desktop.png)
 
 ## 技术架构
 
@@ -36,8 +32,8 @@ ExpatHome 是面向涉外租售业务的房源、客户和内容运营系统，�
 ## 本地安装
 
 ```bash
-git clone https://github.com/CharlesYin1204/seo-ai-expatshome.git
-cd seo-ai-expatshome
+git clone https://github.com/CharlesYin1204/seo-tools.git
+cd seo-tools
 npm ci
 cd client && npm ci && cd ..
 cp .env.example .env
@@ -73,7 +69,7 @@ npm run lint
 NODE_ENV=production npm start
 ```
 
-上线前还应验证登录、房源增删改查、地图、小区匹配、上传、导入导出和权限隔离。
+上线前还应验证登录、站点接入、审计、候选审核、发布复扫、报表和权限隔离。
 
 ## 生产部署
 
@@ -102,7 +98,7 @@ NODE_ENV=production npm start
 - 数据库连接失败：检查账号权限、防火墙和数据库名称。
 - 队列不运行：确认 Redis 可用并检查队列日志。
 - 图片无法访问：检查目录权限、对象存储和 Nginx 路径。
-- 地图无数据：确认密钥、域名白名单和坐标格式。
+- 站点扫描失败：确认目标站点可访问、Sitemap 地址、抓取频率和网络出口。
 
 ## 联系方式
 

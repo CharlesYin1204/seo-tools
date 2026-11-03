@@ -1,7 +1,7 @@
 {
-  "name": "expatshome-node",
+  "name": "seo-tools",
   "version": "1.0.0",
-  "description": "ExpatHome - 涉外找房&房屋管理系统 + 微信机器人 (Node.js + Vue.js)",
+  "description": "SEO工具 - 多站点 SEO、GEO/AEO 与 AI 搜索可见性运营平台",
   "private": true,
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",

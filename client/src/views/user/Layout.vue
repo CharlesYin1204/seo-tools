@@ -3,7 +3,7 @@
     <div v-if="open" class="overlay" @click="open = false" />
     <aside :class="{ open }">
       <router-link to="/" class="brand"
-        ><i class="fas fa-chart-line" /><span>SEO AI系统</span></router-link
+        ><i class="fas fa-chart-line" /><span>SEO工具</span></router-link
       ><button class="fold" @click="collapsed = !collapsed">
         <i
           :class="
