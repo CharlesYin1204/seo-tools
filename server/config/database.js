@@ -1,6 +1,6 @@
 /**
  * 数据库配置与连接池管理
- * 使用mysql2/promise连接池，连接PHP版共享的MySQL数据库
+ * 使用 mysql2/promise 管理 SEO 工具数据库连接池
  */
 const mysql = require('mysql2/promise');
 const logger = require('../utils/logger');
@@ -16,9 +16,9 @@ function createPool() {
   pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT, 10) || 3306,
-    database: process.env.DB_DATABASE || 'shexpatshome',
-    user: process.env.DB_USERNAME || 'shexpatshome',
-    password: process.env.DB_PASSWORD || 'shexpatshome',
+    database: process.env.DB_DATABASE || 'seo_tools',
+    user: process.env.DB_USERNAME || 'seo_tools',
+    password: process.env.DB_PASSWORD || '',
     charset: process.env.DB_CHARSET || 'utf8mb4',
     waitForConnections: true,
     connectionLimit: parseInt(process.env.DB_POOL_MAX, 10) || 10,

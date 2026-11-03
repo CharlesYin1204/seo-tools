@@ -34,8 +34,8 @@ class EmailService {
    */
   async sendMail(to, subject, html) {
     try {
-      const fromEmail = config.mail?.fromEmail || process.env.MAIL_FROM_EMAIL || 'noreply@expatshome.cn';
-      const fromName = config.mail?.fromName || process.env.MAIL_FROM_NAME || 'ExpatHome';
+      const fromEmail = config.mail?.fromEmail || process.env.MAIL_FROM_EMAIL || 'noreply@example.com';
+      const fromName = config.mail?.fromName || process.env.MAIL_FROM_NAME || 'SEO工具';
       await this._getTransporter().sendMail({
         from: `"${fromName}" <${fromEmail}>`,
         to,

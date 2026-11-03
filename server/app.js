@@ -38,10 +38,6 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
-    'http://localhost:8080',
-    'https://sh.expatshome.cn',
-    'https://sh.expatshome.cn:8088',
-    'http://171.80.1.159:8088',
     process.env.APP_URL,
   ].filter(Boolean),
   credentials: true,
@@ -87,9 +83,9 @@ if (config.env === 'production') {
     sessionConfig.store = new MySQLStore({
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT, 10) || 3306,
-      user: process.env.DB_USERNAME || 'shexpatshome',
-      password: process.env.DB_PASSWORD || 'shexpatshome',
-      database: process.env.DB_DATABASE || 'shexpatshome',
+      user: process.env.DB_USERNAME || 'seo_tools',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_DATABASE || 'seo_tools',
       createDatabaseTable: true,
       expiration: config.session.timeout * 1000,
       clearExpired: true,
@@ -115,8 +111,6 @@ app.use('/api/', limiter);
 
 // 静态文件服务
 app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
-app.use('/assets', express.static(path.join(__dirname, '..', 'public', 'assets')));
-app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 
 // Vue.js前端（生产环境）
 // Use an explicit project-root path in production so sibling deployments cannot be served accidentally.
@@ -188,7 +182,7 @@ const serveSpaShell = (req, res, next) => {
   }
   next();
 };
-['/admin', '/open-api-admin', '/auth', '/user', '/tenant', '/agent', '/landlord', '/payment'].forEach(prefix => {
+['/admin', '/auth', '/user', '/payment'].forEach(prefix => {
   app.use(prefix, serveSpaShell);
 });
 
@@ -248,42 +242,10 @@ async function startServer() {
       // 定时修复（仅一个worker执行）
       const workerId = process.env.NODE_APP_INSTANCE || process.env.pm_id || '0';
       if (String(workerId) === '0') {
-        const { fixMetroLinesJob } = require('./jobs/fixMetroLines');
-        setInterval(fixMetroLinesJob, 30 * 1000);
-        setTimeout(fixMetroLinesJob, 3000);
-
-        const { fixMomentIdsJob } = require('./jobs/fixMomentIds');
-        setInterval(fixMomentIdsJob, 60 * 1000);
-        setTimeout(fixMomentIdsJob, 5000);
-
-        // 自动AI解析不完整房源（每60秒执行，批量+并发由system_settings配置控制）
-        const { autoReparseIncompleteJob } = require('./jobs/autoReparseIncomplete');
-        setInterval(autoReparseIncompleteJob, 60 * 1000);
-        setTimeout(autoReparseIncompleteJob, 15 * 1000);
-
-        // 自动刷新朋友圈（每60秒检查一次是否需要刷新）
-        const { autoRefreshMomentsJob } = require('./jobs/autoRefreshMoments');
-        setInterval(autoRefreshMomentsJob, 60 * 1000);
-        setTimeout(autoRefreshMomentsJob, 10 * 1000);
-
-        // 自动POI补全已禁用：新小区需人工判定导入，不再自动创建POI记录
-        // const { autoEnrichPOIJob } = require('./jobs/autoEnrichPOI');
-        // setInterval(autoEnrichPOIJob, 10 * 60 * 1000);
-        // setTimeout(autoEnrichPOIJob, 60 * 1000);
-
-        // 涉外房源定时搜索任务（对应PHP版 processExpatPropertyScheduledTasks，每分钟检查）
-        const { expatScheduledTasksJob } = require('./jobs/expatScheduledTasks');
-        setInterval(expatScheduledTasksJob, 60 * 1000);
-        setTimeout(expatScheduledTasksJob, 15 * 1000);
         const { runSeoScheduledScans } = require('./jobs/seoScheduledScans');
         setInterval(runSeoScheduledScans, 60 * 1000);
         setTimeout(runSeoScheduledScans, 20 * 1000);
-
-        const { cleanupExpiredMomentData } = require('./services/MomentRetentionService');
-        setInterval(() => cleanupExpiredMomentData().catch(() => {}), 6 * 60 * 60 * 1000);
-        setTimeout(() => cleanupExpiredMomentData().catch(() => {}), 20 * 1000);
-
-        console.log('[定时任务] 数据一致性修复+自动重解析+朋友圈自动刷新+涉外房源定时搜索+SEO定时扫描已启动 (worker ' + workerId + ')');
+        console.log('[定时任务] SEO 定时扫描已启动 (worker ' + workerId + ')');
       }
     });
   } catch (err) {

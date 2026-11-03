@@ -7,13 +7,7 @@ import { ElMessage } from 'element-plus'
 import router from '@/router'
 
 const LONG_RUNNING_API_TIMEOUT = 180000
-const DATA_HEAVY_API_TIMEOUT = 120000
-const LONG_RUNNING_API_PATHS = ['/user/expat/parse-moments']
-const DATA_HEAVY_API_PATHS = [
-  '/user/expat/parsed-properties',
-  '/admin/property-library',
-  '/admin/moments-parsed-list',
-]
+const LONG_RUNNING_API_PATHS = ['/user/seo/sites/', '/user/seo/features/']
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -39,8 +33,6 @@ api.interceptors.request.use(
     const requestUrl = String(config.url || '')
     if (LONG_RUNNING_API_PATHS.some((path) => requestUrl.includes(path))) {
       config.timeout = Math.max(Number(config.timeout) || 0, LONG_RUNNING_API_TIMEOUT)
-    } else if (DATA_HEAVY_API_PATHS.some((path) => requestUrl.includes(path))) {
-      config.timeout = Math.max(Number(config.timeout) || 0, DATA_HEAVY_API_TIMEOUT)
     }
     return config
   },

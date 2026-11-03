@@ -1,13 +1,13 @@
 /**
  * PM2 生态系统配置文件
- * ExpatHome Node.js 应用部署配置
+ * SEO工具 Node.js 应用部署配置
  */
 module.exports = {
   apps: [
     {
-      name: 'expatshome-node',
+      name: 'seo-tools',
       script: './server/app.js',
-      cwd: '/www/wwwroot/expatshomenode',
+      cwd: __dirname,
       instances: 'max',
       exec_mode: 'cluster',
       watch: false,

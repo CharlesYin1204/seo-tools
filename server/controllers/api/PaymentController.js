@@ -46,7 +46,7 @@ class PaymentController {
 
   /**
    * 获取微信JSAPI授权URL（微信浏览器内获取openid）
-   * house.expatshome.cn 已配置为网页授权域名，直接使用
+   * 回调域名必须在支付平台后台完成授权配置
    * GET: ?redirect_uri=xxx
    */
   async getWechatJsapiAuthUrl(req, res) {

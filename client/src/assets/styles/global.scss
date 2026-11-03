@@ -1,4 +1,6 @@
-/* ExpatHome 全局样式 - 与PHP版保持一致 */
+@use 'sass:color';
+
+/* SEO工具全局样式 */
 
 :root {
   --primary-color: #2F80ED;
@@ -43,7 +45,7 @@ a {
   transition: color 0.3s ease;
 
   &:hover {
-    color: darken(#2F80ED, 10%);
+    color: color.adjust(#2F80ED, $lightness: -10%);
   }
 }
 
@@ -222,7 +224,7 @@ a {
   color: white;
 
   &:hover {
-    background: darken(#2F80ED, 10%);
+    background: color.adjust(#2F80ED, $lightness: -10%);
   }
 }
 

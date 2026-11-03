@@ -30,6 +30,6 @@ INSERT INTO `system_settings` (`setting_key`, `setting_value`, `setting_type`, `
 ('site_description', '专业的涉外房屋租赁平台', 'textarea', 'general', '网站描述', '网站的SEO描述', 2),
 ('site_logo', '', 'text', 'general', '网站LOGO', '网站LOGO图片路径', 3),
 ('site_favicon', '', 'text', 'general', '网站图标', '网站favicon图标路径', 4),
-('contact_email', 'admin@expatshome.com', 'text', 'contact', '联系邮箱', '网站联系邮箱', 1),
+('contact_email', '', 'text', 'contact', '联系邮箱', '网站联系邮箱', 1),
 ('contact_phone', '', 'text', 'contact', '联系电话', '网站联系电话', 2),
 ('contact_address', '', 'textarea', 'contact', '联系地址', '网站联系地址', 3);

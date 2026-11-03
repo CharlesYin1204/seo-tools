@@ -18,7 +18,7 @@ class QueueService {
     if (queues.has(queueName)) return queues.get(queueName);
     const q = new Bull(queueName, {
       redis: redisOpt,
-      prefix: (process.env.REDIS_PREFIX || 'expatshome_node') + 'bull:',
+      prefix: (process.env.REDIS_PREFIX || 'seo_tools:') + 'bull:',
     });
     q.on('error', (err) => logger.error('QueueService 队列错误', { queueName, error: err.message }));
     queues.set(queueName, q);

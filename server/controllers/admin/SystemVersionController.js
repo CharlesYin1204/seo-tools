@@ -78,11 +78,11 @@ class SystemVersionController {
   async _getCurrentVersionData() {
     const pkgPath = path.join(__dirname, '../../../package.json');
     let pkgVersion = '1.0.0';
-    let pkgName = 'expatshome-node';
+    let pkgName = 'seo-tools';
     if (fs.existsSync(pkgPath)) {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
       pkgVersion = pkg.version || '1.0.0';
-      pkgName = pkg.name || 'expatshome-node';
+      pkgName = pkg.name || 'seo-tools';
     }
 
     let dbVersion = null;
@@ -113,11 +113,11 @@ class SystemVersionController {
       const data = await this._getCurrentVersionData();
       const pkgPath = path.join(__dirname, '../../../package.json');
       let pkgVersion = '1.0.0';
-      let pkgName = 'expatshome-node';
+      let pkgName = 'seo-tools';
       if (fs.existsSync(pkgPath)) {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
         pkgVersion = pkg.version || '1.0.0';
-        pkgName = pkg.name || 'expatshome-node';
+        pkgName = pkg.name || 'seo-tools';
       }
       return success(res, {
         ...data,

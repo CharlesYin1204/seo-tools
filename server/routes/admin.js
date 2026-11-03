@@ -15,7 +15,7 @@ let NotificationController, HomepageSettingsController, WebsiteSettingsControlle
 let PropertyLibraryController, LanguageSettingsController, ThemeController;
 let AdminSettingsController, MenuManagementController, OrderControllerAdmin;
 let ArticleCategoryController, AdminWeChatOAController, AdminProfileController;
-let ExpatHomeAdminController, FloatContactController, ExpatPropertyScraperController, ScheduledTaskController;
+let FloatContactController, ExpatPropertyScraperController, ScheduledTaskController;
 let FriendLinksController, PointsSettingsController, ReferralSettingsController;
 let MarketingSettingsController, DemandManageController, PluginManagementController;
 let SystemVersionController, DatabaseFixController;
@@ -42,7 +42,6 @@ try { OrderControllerAdmin = require('../controllers/admin/OrderController'); } 
 try { ArticleCategoryController = require('../controllers/admin/ArticleCategoryController'); } catch { ArticleCategoryController = null; }
 try { AdminWeChatOAController = require('../controllers/admin/WeChatOfficialAccountController'); } catch { AdminWeChatOAController = null; }
 try { AdminProfileController = require('../controllers/admin/ProfileController'); } catch { AdminProfileController = null; }
-try { ExpatHomeAdminController = require('../controllers/admin/ExpatHomeAdminController'); } catch { ExpatHomeAdminController = null; }
 try { FloatContactController = require('../controllers/admin/FloatContactController'); } catch { FloatContactController = null; }
 try { ExpatPropertyScraperController = require('../controllers/admin/ExpatPropertyScraperController'); } catch { ExpatPropertyScraperController = null; }
 try { ScheduledTaskController = require('../controllers/admin/ScheduledTaskController'); } catch { ScheduledTaskController = null; }
@@ -328,27 +327,6 @@ router.get('/profile', ctrl(AdminProfileController, 'getProfile'));
 router.put('/profile', ctrl(AdminProfileController, 'updateProfile'));
 router.post('/profile/change-password', ctrl(AdminProfileController, 'changePassword'));
 
-// ============ ExpatHome涉外租赁管理 ============
-router.get('/expatshome/dashboard', ctrl(ExpatHomeAdminController, 'getDashboard'));
-router.get('/expatshome/properties', ctrl(ExpatHomeAdminController, 'getProperties'));
-router.post('/expatshome/properties', ctrl(ExpatHomeAdminController, 'updateProperty'));
-router.put('/expatshome/properties/:id', ctrl(ExpatHomeAdminController, 'updateProperty'));
-router.delete('/expatshome/properties/:id', ctrl(ExpatHomeAdminController, 'deleteProperty'));
-router.get('/expatshome/contacts', ctrl(ExpatHomeAdminController, 'getContacts'));
-router.get('/expatshome/appointments', ctrl(ExpatHomeAdminController, 'getAppointments'));
-router.get('/expatshome/agents', ctrl(ExpatHomeAdminController, 'getAgents'));
-router.get('/expatshome/landlords', ctrl(ExpatHomeAdminController, 'getLandlords'));
-router.get('/expatshome/settings', ctrl(ExpatHomeAdminController, 'getSettings'));
-router.post('/expatshome/settings', ctrl(ExpatHomeAdminController, 'saveSettings'));
-router.get('/expatshome/map-settings', ctrl(ExpatHomeAdminController, 'getMapSettings'));
-router.post('/expatshome/map-settings', ctrl(ExpatHomeAdminController, 'saveMapSettings'));
-
-// ============ 地图Key组管理 ============
-router.get('/expatshome/map-key-groups', ctrl(ExpatHomeAdminController, 'getMapKeyGroups'));
-router.post('/expatshome/map-key-groups', ctrl(ExpatHomeAdminController, 'saveMapKeyGroup'));
-router.delete('/expatshome/map-key-groups/:id', ctrl(ExpatHomeAdminController, 'deleteMapKeyGroup'));
-router.post('/expatshome/map-key-groups/:id/set-default', ctrl(ExpatHomeAdminController, 'setDefaultMapKeyGroup'));
-router.post('/expatshome/map-key-groups/:id/check', ctrl(ExpatHomeAdminController, 'checkMapKeyGroup'));
 
 // ============ 悬浮联系方式 ============
 router.get('/float-contact', ctrl(FloatContactController, 'getSettings'));

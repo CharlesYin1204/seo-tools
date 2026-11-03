@@ -38,7 +38,7 @@ class DatabaseFixController {
   async getStatus(req, res) {
     try {
       const tables = await query('SHOW TABLES');
-      const dbName = process.env.DB_DATABASE || 'shexpatshome';
+      const dbName = process.env.DB_DATABASE || 'seo_tools';
       const columnKey = `Tables_in_${dbName}`;
 
       const existingTables = tables.map(row => {
@@ -99,7 +99,7 @@ class DatabaseFixController {
       const { tables: requestedTables, fix_all } = req.body;
 
       const allTables = await query('SHOW TABLES');
-      const dbName = process.env.DB_DATABASE || 'shexpatshome';
+      const dbName = process.env.DB_DATABASE || 'seo_tools';
       const columnKey = `Tables_in_${dbName}`;
       const existingTables = allTables.map(row => {
         const keys = Object.keys(row);

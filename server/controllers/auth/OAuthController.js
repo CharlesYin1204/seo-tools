@@ -6,6 +6,7 @@ const { success, error } = require('../../utils/response');
 const { query } = require('../../config/database');
 const logger = require('../../utils/logger');
 const crypto = require('crypto');
+const appConfig = require('../../config');
 
 class OAuthController {
   /**
@@ -103,7 +104,7 @@ class OAuthController {
       const jwt = require('jsonwebtoken');
       const token = jwt.sign(
         { userId: user.id, username: user.username, role: user.role || 'user' },
-        process.env.JWT_SECRET || 'expatshome_secret',
+        appConfig.jwt.secret,
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
       );
 

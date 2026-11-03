@@ -88,10 +88,10 @@ NODE_ENV=production npm start
 
 - `server/`：Express API、业务服务、配置和任务。
 - `client/`：前端源代码。
-- `server/public/`：构建后的公共资源。
-- `database/`：数据库结构与维护脚本。
-- `scripts/`：数据导入、POI 和运维脚本。
-- `public/uploads/`：本地上传目录，生产数据不纳入 Git。
+- `database/`：核心结构、SEO 商业化迁移和维护脚本。
+- `scripts/`：安全检查与必要运维脚本。
+- `client/dist/`：前端构建结果，由部署流程生成，不纳入 Git。
+- `public/uploads/`：运行时上传目录，生产数据不纳入 Git。
 
 ## 常见问题
 

@@ -14,7 +14,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json()
   ),
-  defaultMeta: { service: 'expatshome-node' },
+  defaultMeta: { service: 'seo-tools' },
   transports: [
     new winston.transports.File({
       filename: path.join(logDir, 'error.log'),

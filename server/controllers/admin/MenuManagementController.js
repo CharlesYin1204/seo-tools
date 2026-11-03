@@ -9,7 +9,7 @@ const logger = require('../../utils/logger');
 function isBlockedExpatLabel(value) {
   if (!value) return false;
   const normalized = String(value).toLowerCase();
-  return normalized.includes('涉外租赁管理') || normalized.includes('expatshome');
+  return false;
 }
 
 class MenuManagementController {

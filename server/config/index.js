@@ -18,9 +18,9 @@ const config = {
   db: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT, 10) || 3306,
-    database: process.env.DB_DATABASE || 'shexpatshome',
-    username: process.env.DB_USERNAME || 'shexpatshome',
-    password: process.env.DB_PASSWORD || 'shexpatshome',
+    database: process.env.DB_DATABASE || 'seo_tools',
+    username: process.env.DB_USERNAME || 'seo_tools',
+    password: process.env.DB_PASSWORD || '',
     charset: process.env.DB_CHARSET || 'utf8mb4',
   },
 
@@ -29,16 +29,16 @@ const config = {
     port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     password: process.env.REDIS_PASSWORD || undefined,
     database: parseInt(process.env.REDIS_DATABASE, 10) || 0,
-    prefix: process.env.REDIS_PREFIX || 'expatshome_node:',
+    prefix: process.env.REDIS_PREFIX || 'seo_tools:',
   },
 
   session: {
-    secret: process.env.SESSION_SECRET || 'expatshome_node_session_secret',
+    secret: process.env.SESSION_SECRET || 'development-session-secret-change-me',
     timeout: parseInt(process.env.SESSION_TIMEOUT, 10) || 3600,
   },
 
   jwt: {
-    secret: process.env.JWT_SECRET || 'expatshome_jwt_secret',
+    secret: process.env.JWT_SECRET || 'development-jwt-secret-change-me',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
 
@@ -47,7 +47,7 @@ const config = {
     port: parseInt(process.env.MAIL_PORT, 10) || 587,
     username: process.env.MAIL_USERNAME || '',
     password: process.env.MAIL_PASSWORD || '',
-    fromEmail: process.env.MAIL_FROM_EMAIL || 'noreply@expatshome.cn',
+    fromEmail: process.env.MAIL_FROM_EMAIL || 'noreply@example.com',
     fromName: process.env.MAIL_FROM_NAME || 'SEO工具',
   },
 
@@ -100,5 +100,13 @@ const config = {
     lockoutDuration: 1800,
   },
 };
+
+if (config.env === 'production') {
+  const required = ['DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD', 'SESSION_SECRET', 'JWT_SECRET'];
+  const missing = required.filter((key) => !String(process.env[key] || '').trim());
+  if (missing.length) {
+    throw new Error(`生产环境缺少必要配置: ${missing.join(', ')}`);
+  }
+}
 
 module.exports = config;

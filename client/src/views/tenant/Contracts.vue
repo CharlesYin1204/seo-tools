@@ -1,1 +1,0 @@
-<template><TenantTable title="合同中心" empty="暂无合同记录。" :loader="tenantApi.getContracts" /></template><script setup>import TenantTable from './TenantTable.vue'; import { tenantApi } from '@/api/modules/tenant'</script>
