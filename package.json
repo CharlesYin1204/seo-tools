@@ -1,6 +1,7 @@
 {
   "name": "seo-tools",
   "version": "1.0.0",
+  "license": "MIT",
   "description": "SEO工具 - 多站点 SEO、GEO/AEO 与 AI 搜索可见性运营平台",
   "private": true,
   "scripts": {
