@@ -11,7 +11,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "@popperjs/core": "^2.11.8",
-    "axios": "^1.13.6",
+    "axios": "^1.21.0",
     "bootstrap": "^5.3.8",
     "element-plus": "^2.13.5",
     "leaflet": "^1.9.4",
